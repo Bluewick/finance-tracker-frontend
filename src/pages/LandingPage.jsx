@@ -12,14 +12,13 @@ import {
   Lock,
   PieChart,
   Plus,
-  ShieldCheck,
   Sparkles,
   Target,
   TrendingUp,
-  Wallet,
 } from 'lucide-react';
+import BrandLogo from '../components/common/BrandLogo.jsx';
 import useAuth from '../hooks/useAuth.js';
-import { SUPPORTED_CURRENCIES } from '../utils/constants.util.js';
+import { APP_BRAND, SUPPORTED_CURRENCIES } from '../utils/constants.util.js';
 import { formatCurrency } from '../utils/formatters.util.js';
 
 const PREVIEW_BARS = [
@@ -37,7 +36,7 @@ const CORE_FEATURES = [
     title: 'Smart Categorization & Custom Labels',
     description:
       'Log inflows and outflows across curated categories or define your own custom categories on the fly with instant search and date-range filtering.',
-    badge: 'Ledger CRUD',
+    badge: 'Smart Ledger',
   },
   {
     icon: BarChart3,
@@ -69,10 +68,10 @@ const CORE_FEATURES = [
   },
   {
     icon: Lock,
-    title: 'JWT Session & Route Protection',
+    title: 'Private & Secure by Design',
     description:
-      'Protected client routes, automatic Bearer token interceptors, and self-service password security management keep your data private.',
-    badge: 'Secured',
+      'Your personal financial records stay isolated to your private workspace with full self-service account and password controls.',
+    badge: 'Privacy First',
   },
 ];
 
@@ -81,7 +80,7 @@ const WORKFLOW_STEPS = [
     step: '01',
     title: 'Create Your Workspace',
     description:
-      'Register in seconds at /register and choose your preferred display currency (INR, USD, EUR, or GBP).',
+      'Sign up in seconds and select your preferred display currency (INR, USD, EUR, or GBP) anytime from the top bar.',
   },
   {
     step: '02',
@@ -106,35 +105,16 @@ export default function LandingPage() {
   const { isAuthenticated, user } = useAuth();
   const [previewCurrency, setPreviewCurrency] = useState('INR');
 
-  // Scale preview numbers cleanly when visitor toggles currency in the hero preview widget
-  const multiplier =
-    previewCurrency === 'INR'
-      ? 1
-      : previewCurrency === 'USD'
-        ? 0.012
-        : previewCurrency === 'EUR'
-          ? 0.011
-          : 0.0095;
-
-  const sampleIncome = Math.round(85000 * multiplier);
-  const sampleExpense = Math.round(24800 * multiplier);
+  // Base INR sample figures — formatCurrency automatically converts using live FX rates
+  const sampleIncome = 85000;
+  const sampleExpense = 24800;
   const sampleNet = sampleIncome - sampleExpense;
 
   return (
     <div className="min-h-screen bg-[#F6F8FC] text-[#000000]">
       {/* Top Navigation Bar (h-16, #FFFFFF, soft ambient shadow) */}
       <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between bg-[#FFFFFF]/95 px-4 sm:px-8 lg:px-14 shadow-[0px_2px_5px_0px_rgba(0,0,0,0.07)] backdrop-blur-md">
-        <Link to="/" className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[6px] bg-[#0063F9] text-[#FFFFFF]">
-            <Wallet className="h-4 w-4" />
-          </div>
-          <span
-            className="text-[21px] font-bold leading-6 tracking-[-0.07em] text-[#000000]"
-            style={{ fontFamily: 'var(--font-brand)' }}
-          >
-            FluentFinance
-          </span>
-        </Link>
+        <BrandLogo to="/" size="md" />
 
         {/* Center Section Anchors (Desktop) */}
         <nav className="hidden md:flex items-center gap-7 text-[13px] font-semibold text-[#474747]">
@@ -203,7 +183,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="mt-4 max-w-xl text-[15px] font-medium leading-7 text-[#474747]">
-              FluentFinance pairs high-signal visual analytics with effortless daily expense tracking. Monitor category breakdowns, monthly cashflow trends, and budget guardrails in one luminous workspace.
+              {APP_BRAND.NAME} pairs high-signal visual analytics with effortless daily expense tracking. Monitor category breakdowns, monthly cashflow trends, and budget guardrails in one luminous workspace.
             </p>
 
             {/* Primary Hero CTA Buttons */}
@@ -239,9 +219,9 @@ export default function LandingPage() {
             {/* Trust Highlights */}
             <div className="mt-8 grid grid-cols-3 gap-4 border-t border-black/10 pt-6 w-full max-w-lg">
               <div>
-                <p className="text-[20px] font-bold text-[#000000]">7+ Charts</p>
+                <p className="text-[20px] font-bold text-[#000000]">9+ Charts</p>
                 <p className="text-[12px] font-medium text-[#626262]">
-                  Live Recharts Analytics
+                  Live Visual Analytics
                 </p>
               </div>
               <div>
@@ -253,7 +233,7 @@ export default function LandingPage() {
               <div>
                 <p className="text-[20px] font-bold text-[#000000]">100% Private</p>
                 <p className="text-[12px] font-medium text-[#626262]">
-                  JWT & bcrypt Secured
+                  Personal Workspace
                 </p>
               </div>
             </div>
@@ -414,7 +394,7 @@ export default function LandingPage() {
               Everything you need to command your personal cashflow
             </h2>
             <p className="mt-2.5 text-[14px] font-medium leading-6 text-[#626262]">
-              Designed with the Fluent Design System for high-signal data density and zero visual clutter.
+              Crafted for effortless daily tracking, clear visual insights, and zero clutter.
             </p>
           </div>
 
@@ -527,20 +507,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-black/[0.06] bg-[#FFFFFF] py-6">
         <div className="mx-auto flex max-w-[1320px] flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:px-8 lg:px-14">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-[5px] bg-[#0063F9] text-[#FFFFFF]">
-              <Wallet className="h-3.5 w-3.5" />
-            </div>
-            <span
-              className="text-[16px] font-bold tracking-[-0.07em] text-[#000000]"
-              style={{ fontFamily: 'var(--font-brand)' }}
-            >
-              FluentFinance
-            </span>
-            <span className="text-[12px] font-medium text-[#767676]">
-              — Personal Finance Tracker
-            </span>
-          </div>
+          <BrandLogo to="/" size="sm" showTaglineInline />
 
           <div className="flex items-center gap-5 text-[12px] font-semibold text-[#626262]">
             <Link to="/login" className="hover:text-[#0063F9]">
@@ -552,9 +519,6 @@ export default function LandingPage() {
             <Link to="/dashboard" className="hover:text-[#0063F9]">
               Dashboard
             </Link>
-            <span className="inline-flex items-center gap-1 text-[#029A6D]">
-              <ShieldCheck className="h-3.5 w-3.5" /> JWT Protected
-            </span>
           </div>
         </div>
       </footer>

@@ -3,6 +3,13 @@
  * Aligned with DESIGN.md (Fluent Design System) and Backend API Specification
  */
 
+export const APP_BRAND = {
+  NAME: 'Cashnest',
+  TAGLINE: 'Personal Finance Tracker',
+  SUBTITLE: 'Wealth & Cashflow OS',
+  LOGO_URL: '/Cashnest_logo.png',
+};
+
 export const TRANSACTION_TYPES = {
   INCOME: 'income',
   EXPENSE: 'expense',
@@ -89,6 +96,18 @@ export const FLUENT_CHART_PALETTE = [
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'finance_tracker_token',
   AUTH_USER: 'finance_tracker_user',
+  FX_RATES: 'finance_tracker_fx_rates',
+};
+
+/**
+ * Fallback Exchange Rates relative to base currency INR (1 INR = X Target Currency)
+ * Automatically refreshed at runtime with live market rates from open.er-api.com
+ */
+export const FALLBACK_EXCHANGE_RATES = {
+  INR: 1,
+  USD: 0.0119,
+  EUR: 0.011,
+  GBP: 0.0092,
 };
 
 export const CURRENT_YEAR = new Date().getFullYear();

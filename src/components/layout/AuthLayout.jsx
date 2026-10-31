@@ -3,12 +3,11 @@ import {
   ArrowLeft,
   ChartPie,
   CheckCircle2,
-  Lock,
-  ShieldCheck,
   Sparkles,
   TrendingUp,
-  Wallet,
 } from 'lucide-react';
+import BrandLogo from '../common/BrandLogo.jsx';
+import { APP_BRAND, CURRENT_YEAR } from '../../utils/constants.util.js';
 
 /**
  * Executive Authentication Layout Shell for Login & Register Pages
@@ -34,29 +33,9 @@ export default function AuthLayout({
       {/* Top Navigation Bar */}
       <header className="relative z-10 border-b border-black/[0.06] bg-white/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-gradient-to-br from-[#0063F9] to-[#004EC2] text-white shadow-[0_2px_8px_rgba(0,99,249,0.3)]">
-              <Wallet className="h-4 w-4" />
-            </div>
-            <div className="flex flex-col">
-              <span
-                className="text-[18px] font-bold leading-5 tracking-[-0.05em] text-[#000000]"
-                style={{ fontFamily: 'var(--font-brand)' }}
-              >
-                FluentLedger
-              </span>
-              <span className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#767676]">
-                Wealth & Cashflow OS
-              </span>
-            </div>
-          </Link>
+          <BrandLogo to="/" size="md" showSubtitle />
 
           <div className="flex items-center gap-2.5">
-            <div className="hidden md:flex items-center gap-1.5 rounded-full border border-[#029A6D]/20 bg-[#09F7A1]/[0.10] px-3 py-1 text-[11px] font-semibold text-[#029A6D]">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              <span>256-Bit JWT Session Security</span>
-            </div>
-
             <Link
               to="/"
               className="fluent-pressable inline-flex items-center gap-1.5 rounded-[8px] border border-black/[0.07] bg-[#FFFFFF] px-3 py-1.5 text-[12px] font-semibold text-[#474747] shadow-2xs transition-colors hover:border-[#0063F9]/30 hover:bg-[#F1F7FF] hover:text-[#0063F9]"
@@ -210,9 +189,8 @@ export default function AuthLayout({
       </main>
 
       <footer className="relative z-10 py-4 text-center text-[11px] font-semibold text-[#767676]">
-        <span className="inline-flex items-center gap-1.5">
-          <Lock className="h-3 w-3 text-[#029A6D]" />
-          FluentLedger — Protected by stateless JWT authentication & encrypted transport
+        <span>
+          © {CURRENT_YEAR} {APP_BRAND.NAME} — {APP_BRAND.TAGLINE}
         </span>
       </footer>
     </div>

@@ -15,17 +15,35 @@ import {
   CURRENT_YEAR,
   MONTHS,
 } from '../../utils/constants.util.js';
-import { getCurrencySymbol } from '../../utils/formatters.util.js';
+import {
+  convertCurrency,
+  convertToBaseCurrency,
+  getCurrencySymbol,
+} from '../../utils/formatters.util.js';
 
-function getInitialBudgetState(editingBudget, defaultCategory, activeMonth, activeYear) {
+function getInitialBudgetState(
+  editingBudget,
+  defaultCategory,
+  activeMonth,
+  activeYear,
+  activeCurrency = 'INR'
+) {
   if (editingBudget) {
+    const convertedLimit =
+      editingBudget.amount_limit !== undefined
+        ? Number(
+            convertCurrency(
+              editingBudget.amount_limit,
+              activeCurrency,
+              'INR'
+            ).toFixed(2)
+          )
+        : '';
+
     return {
       category: editingBudget.category || 'ALL',
       customCategory: '',
-      amount_limit:
-        editingBudget.amount_limit !== undefined
-          ? String(editingBudget.amount_limit)
-          : '',
+      amount_limit: convertedLimit !== '' ? String(convertedLimit) : '',
       month: Number(editingBudget.month) || activeMonth || CURRENT_MONTH,
       year: Number(editingBudget.year) || activeYear || CURRENT_YEAR,
     };
@@ -89,7 +107,13 @@ function BudgetFormDialog({
   const isEditing = Boolean(editingBudget?._id || editingBudget?.id);
 
   const [formData, setFormData] = useState(() =>
-    getInitialBudgetState(editingBudget, defaultCategory, activeMonth, activeYear)
+    getInitialBudgetState(
+      editingBudget,
+      defaultCategory,
+      activeMonth,
+      activeYear,
+      currency
+    )
   );
   const [fieldErrors, setFieldErrors] = useState({});
   const [apiError, setApiError] = useState('');
@@ -156,11 +180,16 @@ function BudgetFormDialog({
     setSubmitting(true);
     setApiError('');
 
+    const baseAmountLimit = convertToBaseCurrency(
+      formData.amount_limit,
+      currency
+    );
+
     try {
       if (isEditing) {
         const budgetId = editingBudget._id || editingBudget.id;
         await updateBudget(budgetId, {
-          amount_limit: Number(formData.amount_limit),
+          amount_limit: baseAmountLimit,
         });
         toast.success(
           `${formData.category === 'ALL' ? 'Overall' : formData.category} budget limit updated.`,
@@ -169,7 +198,7 @@ function BudgetFormDialog({
       } else {
         await createBudget({
           category: resolvedCategory,
-          amount_limit: Number(formData.amount_limit),
+          amount_limit: baseAmountLimit,
           month: Number(formData.month),
           year: Number(formData.year),
         });

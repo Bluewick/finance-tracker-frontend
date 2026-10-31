@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
-  Activity,
   CheckCircle2,
   Coins,
   Eye,
@@ -24,7 +23,6 @@ import AlertBanner from '../components/feedback/AlertBanner.jsx';
 import useAuth from '../hooks/useAuth.js';
 import useToast from '../hooks/useToast.js';
 import { updateUserPassword } from '../services/user.service.js';
-import { getApiRootStatus, getServerHealth } from '../services/api.js';
 import { SUPPORTED_CURRENCIES } from '../utils/constants.util.js';
 import { formatDate } from '../utils/formatters.util.js';
 
@@ -67,41 +65,6 @@ export default function ProfilePage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
-
-  // System Health State (Endpoints #1 & #9: GET / & GET /api/health)
-  const [healthInfo, setHealthInfo] = useState({
-    loading: true,
-    healthy: false,
-    uptime: null,
-    message: '',
-  });
-
-  useEffect(() => {
-    let active = true;
-    Promise.all([getApiRootStatus(), getServerHealth()])
-      .then(([rootRes, healthRes]) => {
-        if (!active) return;
-        setHealthInfo({
-          loading: false,
-          healthy: true,
-          uptime: healthRes?.data?.uptime ?? null,
-          message: rootRes?.message || 'Backend API is running.',
-        });
-      })
-      .catch(() => {
-        if (!active) return;
-        setHealthInfo({
-          loading: false,
-          healthy: false,
-          uptime: null,
-          message: 'Unable to reach health endpoint.',
-        });
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
 
   const handleSyncProfile = async () => {
     setSyncingProfile(true);
@@ -272,9 +235,6 @@ export default function ProfilePage() {
                 icon={CheckCircle2}
               >
                 {user?.is_active !== false ? 'Active Account' : 'Inactive'}
-              </Badge>
-              <Badge variant="primary" size="sm" className="uppercase">
-                Role: {user?.role || 'user'}
               </Badge>
             </div>
             <p className="mt-1 text-[13px] font-semibold text-[#626262]">
@@ -487,37 +447,6 @@ export default function ProfilePage() {
             </div>
           </form>
         </Card>
-      </div>
-
-      {/* System Status & API Health Strip (Endpoints #1 & #9) */}
-      <div className="fluent-card mt-5 flex flex-col items-start justify-between gap-3 p-4 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[5px] bg-[#EBF3FF] text-[#0063F9]">
-            <Activity className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-[13px] font-semibold text-[#000000]">
-              Backend API Connection Status
-            </p>
-            <p className="text-[12px] font-medium text-[#626262]">
-              {healthInfo.message}
-              {healthInfo.uptime !== null &&
-                ` • Uptime: ${Math.round(healthInfo.uptime)}s`}
-            </p>
-          </div>
-        </div>
-
-        <Badge
-          variant={healthInfo.healthy ? 'success' : 'danger'}
-          size="md"
-          icon={CheckCircle2}
-        >
-          {healthInfo.loading
-            ? 'Checking...'
-            : healthInfo.healthy
-              ? 'Server Healthy'
-              : 'Disconnected'}
-        </Badge>
       </div>
     </PageContainer>
   );

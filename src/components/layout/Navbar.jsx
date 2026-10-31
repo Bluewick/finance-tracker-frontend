@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeftRight,
   Check,
@@ -13,13 +13,16 @@ import {
   Search,
   Settings,
   User,
-  Wallet,
   X,
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth.js';
 import useToast from '../../hooks/useToast.js';
 import { SUPPORTED_CURRENCIES } from '../../utils/constants.util.js';
-import { getCurrencySymbol } from '../../utils/formatters.util.js';
+import {
+  getCurrencySymbol,
+  getExchangeRateLabel,
+} from '../../utils/formatters.util.js';
+import BrandLogo from '../common/BrandLogo.jsx';
 import Spinner from '../feedback/Spinner.jsx';
 
 /**
@@ -116,8 +119,8 @@ export default function Navbar({
         currency: newCode,
       });
       toast.success(
-        `Display currency switched to ${newCode} (${getCurrencySymbol(newCode)}).`,
-        'Currency Updated'
+        `Converted all figures to ${newCode} (${getCurrencySymbol(newCode)}) • ${getExchangeRateLabel(newCode)}.`,
+        'Currency Converted'
       );
       setCurrencyMenuOpen(false);
     } catch (err) {
@@ -166,20 +169,7 @@ export default function Navbar({
           )}
         </button>
 
-        <Link
-          to="/dashboard"
-          className="flex items-center gap-2.5 focus:outline-none"
-        >
-          <div className="flex h-7 w-7 items-center justify-center rounded-[6px] bg-[#0063F9] text-[#FFFFFF]">
-            <Wallet className="h-4 w-4" />
-          </div>
-          <span
-            className="text-[20px] sm:text-[21px] font-bold leading-6 tracking-[-0.07em] text-[#000000]"
-            style={{ fontFamily: 'var(--font-brand)' }}
-          >
-            FluentFinance
-          </span>
-        </Link>
+        <BrandLogo to="/dashboard" size="md" />
       </div>
 
       {/* Center: Compact Global Search Input with subtle Ctrl+K tag */}
@@ -280,6 +270,9 @@ export default function Navbar({
                           <p className="leading-4">{curr.code}</p>
                           <p className="text-[11px] font-medium text-[#767676]">
                             {curr.name.replace(/\s*\(.*\)/, '')}
+                          </p>
+                          <p className="text-[10px] font-semibold text-[#0063F9]">
+                            {getExchangeRateLabel(curr.code)}
                           </p>
                         </div>
                       </div>

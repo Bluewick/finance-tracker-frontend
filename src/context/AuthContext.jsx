@@ -10,6 +10,10 @@ import {
   updateUserProfile as apiUpdateUserProfile,
 } from '../services/user.service.js';
 import { DEFAULT_CURRENCY, STORAGE_KEYS } from '../utils/constants.util.js';
+import {
+  fetchLiveExchangeRates,
+  getExchangeRates,
+} from '../utils/formatters.util.js';
 
 function getInitialStoredUser() {
   try {
@@ -28,6 +32,22 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(() =>
     Boolean(localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN))
   );
+  const [exchangeRates, setExchangeRates] = useState(() => getExchangeRates());
+
+  /**
+   * Fetch latest live FX conversion rates on initial app load
+   */
+  useEffect(() => {
+    let active = true;
+    fetchLiveExchangeRates().then((liveRates) => {
+      if (active && liveRates) {
+        setExchangeRates({ ...liveRates });
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   /**
    * Syncs user profile from GET /api/users/me on initial app load if a JWT exists
@@ -125,6 +145,7 @@ export function AuthProvider({ children }) {
       user,
       token,
       currency,
+      exchangeRates,
       isAuthenticated,
       loading,
       login,
@@ -137,6 +158,7 @@ export function AuthProvider({ children }) {
       user,
       token,
       currency,
+      exchangeRates,
       isAuthenticated,
       loading,
       login,

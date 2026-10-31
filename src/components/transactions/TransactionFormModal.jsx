@@ -24,13 +24,14 @@ import {
   INCOME_CATEGORIES,
 } from '../../utils/constants.util.js';
 import {
+  convertCurrency,
+  convertToBaseCurrency,
   formatCurrency,
   formatDateForInput,
   getCurrencySymbol,
 } from '../../utils/formatters.util.js';
 
 const TODAY_INPUT = new Date().toISOString().split('T')[0];
-const QUICK_AMOUNTS = [500, 1000, 5000, 10000];
 
 function isOtherOption(cat) {
   return (
@@ -38,7 +39,7 @@ function isOtherOption(cat) {
   );
 }
 
-function getInitialFormState(editingTransaction) {
+function getInitialFormState(editingTransaction, activeCurrency = 'INR') {
   if (editingTransaction) {
     const type = editingTransaction.type || 'expense';
     const stdList =
@@ -50,15 +51,24 @@ function getInitialFormState(editingTransaction) {
       Boolean(rawCat) &&
       (!stdList.includes(rawCat) || isOtherOption(rawCat));
 
+    const convertedDisplayAmount =
+      editingTransaction.amount !== undefined
+        ? Number(
+            convertCurrency(
+              editingTransaction.amount,
+              activeCurrency,
+              'INR'
+            ).toFixed(2)
+          )
+        : '';
+
     return {
       type,
       category: isCustom ? 'Other' : rawCat,
       customCategory:
         isCustom && !isOtherOption(rawCat) ? rawCat : '',
       amount:
-        editingTransaction.amount !== undefined
-          ? String(editingTransaction.amount)
-          : '',
+        convertedDisplayAmount !== '' ? String(convertedDisplayAmount) : '',
       date: formatDateForInput(editingTransaction.date) || TODAY_INPUT,
       notes: editingTransaction.notes || '',
     };
@@ -112,11 +122,14 @@ function TransactionFormDialog({
   const currencySymbol = getCurrencySymbol(currency);
 
   const [formData, setFormData] = useState(() =>
-    getInitialFormState(editingTransaction)
+    getInitialFormState(editingTransaction, currency)
   );
   const [fieldErrors, setFieldErrors] = useState({});
   const [apiError, setApiError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const quickAmounts =
+    currency === 'INR' ? [500, 1000, 5000, 10000] : [10, 50, 100, 500];
 
   const baseCategories =
     formData.type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
@@ -199,7 +212,7 @@ function TransactionFormDialog({
     const payload = {
       type: formData.type,
       category: resolvedCategory,
-      amount: Number(formData.amount),
+      amount: convertToBaseCurrency(formData.amount, currency),
       date: formData.date,
       notes: formData.notes.trim(),
     };
@@ -250,7 +263,8 @@ function TransactionFormDialog({
             {Number(formData.amount) > 0
               ? `${isExpense ? 'Outflow' : 'Inflow'}: ${formatCurrency(
                   formData.amount,
-                  currency
+                  currency,
+                  { skipConversion: true }
                 )}`
               : 'Enter amount above'}
           </span>
@@ -383,7 +397,7 @@ function TransactionFormDialog({
             <span className="mr-1 text-[10px] font-semibold text-[#767676]">
               Quick Add:
             </span>
-            {QUICK_AMOUNTS.map((amt) => (
+            {quickAmounts.map((amt) => (
               <button
                 key={amt}
                 type="button"
