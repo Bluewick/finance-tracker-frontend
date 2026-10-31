@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-brand: 'Montserrat', sans-serif;
+
+  /* Surface & Canvas Colors (Fluent Design System) */
+  --color-background: #F6F8FC;
+  --color-on-background: #000000;
+  --color-surface: #FFFFFF;
+  --color-surface-dim: #EDF2F9;
+  --color-surface-bright: #FFFFFF;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F6F8FC;
+  --color-surface-container: #F5F5F5;
+  --color-surface-container-high: #EBF3FF;
+  --color-surface-container-highest: #E2E8F0;
+  --color-surface-inset: #F1F6FF;
+  --color-surface-tint: #F1F7FF;
+
+  /* Typography / Content Colors */
+  --color-on-surface: #000000;
+  --color-on-surface-variant: #474747;
+  --color-on-surface-muted: #626262;
+  --color-on-surface-subtle: #767676;
+
+  /* Brand & Interactive Tokens */
+  --color-primary: #0063F9;
+  --color-on-primary: #FFFFFF;
+  --color-primary-container: #F1F7FF;
+  --color-on-primary-container: #0063F9;
+  --color-primary-hover: #0056D6;
+  --color-secondary: #1E1E1E;
+  --color-on-secondary: #FFFFFF;
+  --color-secondary-container: #F5F5F5;
+  --color-on-secondary-container: #474747;
+
+  /* Categorical & Data Visualization Palette */
+  --color-accent-brand: #4891FF;
+  --color-accent-brand-light: #8AB9FF;
+  --color-accent-brand-deep: #064099;
+  --color-accent-brand-royal: #0056D6;
+
+  /* Semantic Status & Delta Tokens */
+  --color-accent-success: #09F7A1;
+  --color-on-accent-success: #029A6D;
+  --color-accent-error: #F70909;
+  --color-on-accent-error: #840000;
+  --color-outline-focus: #0063F9;
+
+  /* Border Radii (DESIGN.md exact scale) */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-DEFAULT: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+  --radius-xl: 15px;
+  --radius-2xl: 21px;
+  --radius-full: 9999px;
+
+  /* Ambient Shadows (DESIGN.md Level 1, 2, 3) */
+  --shadow-card: 0px 2px 5px 0px rgba(0, 0, 0, 0.09);
+  --shadow-card-hover: 0px 4px 12px 0px rgba(0, 0, 0, 0.08);
+  --shadow-sidebar: 0px 0px 4px 0px rgba(0, 0, 0, 0.09);
+  --shadow-tooltip: 1px 1px 1.8px 0px rgba(0, 0, 0, 0.09);
+}
+
+/* Base Canvas & Typography Reset */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #F6F8FC;
+    color: #000000;
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Fluent Design System Reusable Utility Classes */
+.fluent-card {
+  background-color: #FFFFFF;
+  border-radius: 15px;
+  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.09);
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fluent-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.08);
+}
+
+.fluent-elevated-pill {
+  background-color: #FFFFFF;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.09);
+}
+
+.fluent-frosted-tooltip {
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(8.05px);
+  -webkit-backdrop-filter: blur(8.05px);
+  border-radius: 3px;
+  box-shadow: 1px 1px 1.8px 0px rgba(0, 0, 0, 0.09);
+}
+
+.fluent-pressable {
+  transition: transform 80ms ease, background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.fluent-pressable:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Custom Subtle Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F6F8FC;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
