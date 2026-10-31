@@ -47,15 +47,15 @@ export default function ExportButton({ filters = {}, disabled = false }) {
   return (
     <Button
       variant="secondary"
-      size="md"
+      size="sm"
       icon={Download}
       loading={exporting}
-      loadingText="Exporting CSV..."
+      loadingText="Exporting..."
       disabled={disabled}
       onClick={handleExport}
+      className="h-8"
     >
-      Export CSV
+      Export
     </Button>
   );
 }
-

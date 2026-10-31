@@ -1,4 +1,5 @@
-import { Calendar, Filter, RotateCcw, Search } from 'lucide-react';
+import { Calendar, Check, Filter, RotateCcw, Search } from 'lucide-react';
+import Modal from '../common/Modal.jsx';
 import Input from '../common/Input.jsx';
 import Select from '../common/Select.jsx';
 import Button from '../common/Button.jsx';
@@ -15,10 +16,12 @@ const TYPE_PILLS = [
 ];
 
 /**
- * TransactionFilterBar Component (Task 5.2 — Use Case 5)
- * Filters transactions by Type (All, Income, Expense), Category, Date Range (startDate, endDate), and Search query
+ * TransactionFilterBar Modal Component (Task 5.2 — Use Case 5)
+ * Renders transaction filter controls (Type, Search, Category, Date Range) inside a clean modal.
  */
 export default function TransactionFilterBar({
+  isOpen,
+  onClose,
   filters,
   onFilterChange,
   onReset,
@@ -43,47 +46,73 @@ export default function TransactionFilterBar({
     Boolean(filters.search);
 
   return (
-    <div className="fluent-card mb-4 flex flex-col gap-3.5 p-4">
-      {/* Top Row: Type Segment Pills + Search Input */}
-      <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-        {/* Type Segmented Pills (DESIGN.md Section 5) */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-1 text-[12px] font-semibold text-[#626262]">
-            Type:
-          </span>
-          {TYPE_PILLS.map((pill) => {
-            const isActive = filters.type === pill.value;
-            return (
-              <button
-                key={pill.value}
-                type="button"
-                onClick={() => onFilterChange('type', pill.value)}
-                className={`fluent-pressable rounded-[5px] px-[15px] py-[6px] text-[11px] font-semibold leading-[14px] transition-all ${
-                  isActive
-                    ? 'bg-[#F1F7FF] text-[#0063F9]'
-                    : 'border-[0.5px] border-black/15 bg-[#FFFFFF] text-[#626262] hover:text-[#000000]'
-                }`}
-              >
-                {pill.label}
-              </button>
-            );
-          })}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Filter Transactions"
+      subtitle="Narrow down your transaction ledger by type, category, date range, or notes."
+      maxWidth="max-w-md"
+      footer={
+        <div className="flex w-full items-center justify-between">
+          <Button
+            variant="subtle"
+            size="sm"
+            icon={RotateCcw}
+            disabled={!hasActiveFilters}
+            onClick={onReset}
+          >
+            Reset Filters
+          </Button>
+
+          <Button
+            variant="primary"
+            size="sm"
+            icon={Check}
+            onClick={onClose}
+          >
+            Apply Filters
+          </Button>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        {/* Type Segmented Pills */}
+        <div>
+          <label className="mb-1.5 block text-[13px] font-semibold text-[#000000]">
+            Transaction Type
+          </label>
+          <div className="grid grid-cols-3 gap-2 rounded-[7px] bg-[#F5F5F5] p-1">
+            {TYPE_PILLS.map((pill) => {
+              const isActive = filters.type === pill.value;
+              return (
+                <button
+                  key={pill.value}
+                  type="button"
+                  onClick={() => onFilterChange('type', pill.value)}
+                  className={`fluent-pressable rounded-[5px] py-1.5 text-[12px] font-semibold transition-all ${
+                    isActive
+                      ? 'bg-[#FFFFFF] text-[#0063F9] shadow-[0px_2px_5px_0px_rgba(0,0,0,0.09)]'
+                      : 'text-[#626262] hover:text-[#000000]'
+                  }`}
+                >
+                  {pill.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Search Notes / Category Input */}
-        <div className="w-full md:max-w-xs">
-          <Input
-            type="text"
-            icon={Search}
-            placeholder="Filter by notes or category..."
-            value={filters.search}
-            onChange={(e) => onFilterChange('search', e.target.value)}
-          />
-        </div>
-      </div>
+        <Input
+          label="Search Notes or Category"
+          type="text"
+          icon={Search}
+          placeholder="e.g., supermarket, salary..."
+          value={filters.search}
+          onChange={(e) => onFilterChange('search', e.target.value)}
+        />
 
-      {/* Bottom Row: Category Dropdown + Start Date + End Date + Reset */}
-      <div className="grid grid-cols-1 items-end gap-3 border-t border-black/10 pt-3.5 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Category Dropdown */}
         <Select
           label="Category"
           icon={Filter}
@@ -92,37 +121,25 @@ export default function TransactionFilterBar({
           options={categoryOptions}
         />
 
-        <Input
-          label="From Date"
-          type="date"
-          icon={Calendar}
-          value={filters.startDate}
-          onChange={(e) => onFilterChange('startDate', e.target.value)}
-        />
+        {/* Date Range */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Input
+            label="From Date"
+            type="date"
+            icon={Calendar}
+            value={filters.startDate}
+            onChange={(e) => onFilterChange('startDate', e.target.value)}
+          />
 
-        <Input
-          label="To Date"
-          type="date"
-          icon={Calendar}
-          value={filters.endDate}
-          onChange={(e) => onFilterChange('endDate', e.target.value)}
-        />
-
-        <div className="flex items-center justify-end gap-2">
-          {hasActiveFilters && (
-            <Button
-              variant="subtle"
-              size="md"
-              fullWidth
-              icon={RotateCcw}
-              onClick={onReset}
-            >
-              Reset All Filters
-            </Button>
-          )}
+          <Input
+            label="To Date"
+            type="date"
+            icon={Calendar}
+            value={filters.endDate}
+            onChange={(e) => onFilterChange('endDate', e.target.value)}
+          />
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
-

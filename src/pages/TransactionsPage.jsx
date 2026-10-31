@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, RefreshCw } from 'lucide-react';
+import { Filter, Plus, RefreshCw, X } from 'lucide-react';
 import PageContainer from '../components/layout/PageContainer.jsx';
 import TransactionFilterBar from '../components/transactions/TransactionFilterBar.jsx';
 import TransactionTable from '../components/transactions/TransactionTable.jsx';
@@ -16,10 +16,11 @@ import {
   deleteTransaction,
   getTransactions,
 } from '../services/transaction.service.js';
+import { formatDate } from '../utils/formatters.util.js';
 
 /**
  * TransactionsPage Component (Phase 5 — Use Cases 2, 4, 5, 6 & 8)
- * Full CRUD, Category/Date/Type Filtering, Pagination, and CSV Export
+ * Full CRUD, Modal-based Category/Date/Type Filtering, Pagination, and CSV Export
  */
 export default function TransactionsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,7 +54,8 @@ export default function TransactionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Modal States (Create / Edit & Confirm Delete)
+  // Modal States (Filter, Create/Edit & Confirm Delete)
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [formModalOpen, setFormModalOpen] = useState(initialAction === 'new');
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [deletingTransaction, setDeletingTransaction] = useState(null);
@@ -251,35 +253,69 @@ export default function TransactionsPage() {
     }
   };
 
+  const activeFilterCount =
+    (filters.type !== 'ALL' ? 1 : 0) +
+    (filters.category !== 'ALL' ? 1 : 0) +
+    (filters.startDate ? 1 : 0) +
+    (filters.endDate ? 1 : 0) +
+    (filters.search.trim() ? 1 : 0);
+
+  const hasActiveFilters = activeFilterCount > 0;
+
   return (
     <PageContainer
       title="Transactions"
       subtitle="Record, filter, update, and export your chronological income and expense ledger."
       actions={
         <>
-          <Button
-            variant="secondary"
-            size="md"
-            icon={RefreshCw}
-            loading={loading}
-            loadingText="Syncing..."
+          {/* 1. Small Icon-Only Refresh Button */}
+          <button
+            type="button"
             onClick={handleRefresh}
+            disabled={loading}
+            title="Refresh Transactions"
+            aria-label="Refresh Transactions"
+            className="fluent-pressable flex h-8 w-8 items-center justify-center rounded-[5px] bg-[#FFFFFF] text-[#474747] shadow-[0px_2px_5px_0px_rgba(0,0,0,0.09)] transition-all hover:bg-[#F1F7FF] hover:text-[#0063F9] disabled:opacity-60"
           >
-            Refresh
-          </Button>
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-[#0063F9]' : ''}`}
+            />
+          </button>
 
+          {/* 2. Small Filter Button (opens Filter Modal) */}
+          <button
+            type="button"
+            onClick={() => setFilterModalOpen(true)}
+            className={`fluent-pressable inline-flex h-8 items-center gap-1.5 rounded-[5px] px-3 text-[12px] font-semibold shadow-[0px_2px_5px_0px_rgba(0,0,0,0.09)] transition-all ${
+              hasActiveFilters
+                ? 'bg-[#F1F7FF] text-[#0063F9] ring-1 ring-[#0063F9]/30'
+                : 'bg-[#FFFFFF] text-[#474747] hover:bg-[#F1F7FF] hover:text-[#0063F9]'
+            }`}
+          >
+            <Filter className="h-3.5 w-3.5" />
+            <span>Filter</span>
+            {hasActiveFilters && (
+              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#0063F9] px-1 text-[10px] font-bold text-[#FFFFFF]">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+
+          {/* 3. Small Export CSV Button */}
           <ExportButton
             filters={filters}
             disabled={loading || meta.total === 0}
           />
 
+          {/* 4. Small "+ Add" Button */}
           <Button
             variant="primary"
-            size="md"
+            size="sm"
             icon={Plus}
             onClick={handleOpenCreate}
+            className="h-8"
           >
-            Add Transaction
+            Add
           </Button>
         </>
       }
@@ -294,12 +330,92 @@ export default function TransactionsPage() {
         />
       )}
 
-      {/* Filter Bar */}
-      <TransactionFilterBar
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onReset={handleResetFilters}
-      />
+      {/* Compact Active Filter Pills Strip (shown only when filters are active) */}
+      {hasActiveFilters && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-[10px] bg-[#FFFFFF] px-3.5 py-2 shadow-[0px_2px_5px_0px_rgba(0,0,0,0.06)]">
+          <span className="text-[11px] font-semibold text-[#626262]">
+            Active Filters:
+          </span>
+
+          {filters.type !== 'ALL' && (
+            <span className="inline-flex items-center gap-1.5 rounded-[21px] bg-[#F1F7FF] px-2.5 py-0.5 text-[11px] font-semibold capitalize text-[#0063F9]">
+              <span>Type: {filters.type}</span>
+              <button
+                type="button"
+                onClick={() => handleFilterChange('type', 'ALL')}
+                className="rounded-full p-0.5 hover:bg-[#0063F9]/15"
+                aria-label="Remove type filter"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          )}
+
+          {filters.category !== 'ALL' && (
+            <span className="inline-flex items-center gap-1.5 rounded-[21px] bg-[#F1F7FF] px-2.5 py-0.5 text-[11px] font-semibold text-[#0063F9]">
+              <span>Category: {filters.category}</span>
+              <button
+                type="button"
+                onClick={() => handleFilterChange('category', 'ALL')}
+                className="rounded-full p-0.5 hover:bg-[#0063F9]/15"
+                aria-label="Remove category filter"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          )}
+
+          {filters.search.trim() && (
+            <span className="inline-flex items-center gap-1.5 rounded-[21px] bg-[#F1F7FF] px-2.5 py-0.5 text-[11px] font-semibold text-[#0063F9]">
+              <span>Search: &quot;{filters.search.trim()}&quot;</span>
+              <button
+                type="button"
+                onClick={() => handleFilterChange('search', '')}
+                className="rounded-full p-0.5 hover:bg-[#0063F9]/15"
+                aria-label="Remove search filter"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          )}
+
+          {filters.startDate && (
+            <span className="inline-flex items-center gap-1.5 rounded-[21px] bg-[#F1F7FF] px-2.5 py-0.5 text-[11px] font-semibold text-[#0063F9]">
+              <span>From: {formatDate(filters.startDate)}</span>
+              <button
+                type="button"
+                onClick={() => handleFilterChange('startDate', '')}
+                className="rounded-full p-0.5 hover:bg-[#0063F9]/15"
+                aria-label="Remove start date filter"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          )}
+
+          {filters.endDate && (
+            <span className="inline-flex items-center gap-1.5 rounded-[21px] bg-[#F1F7FF] px-2.5 py-0.5 text-[11px] font-semibold text-[#0063F9]">
+              <span>To: {formatDate(filters.endDate)}</span>
+              <button
+                type="button"
+                onClick={() => handleFilterChange('endDate', '')}
+                className="rounded-full p-0.5 hover:bg-[#0063F9]/15"
+                aria-label="Remove end date filter"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="ml-auto text-[11px] font-semibold text-[#840000] hover:underline"
+          >
+            Clear All
+          </button>
+        </div>
+      )}
 
       {/* Quick Page Summary Strip */}
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -353,6 +469,15 @@ export default function TransactionsPage() {
         onAddFirst={handleOpenCreate}
       />
 
+      {/* Filter Modal */}
+      <TransactionFilterBar
+        isOpen={filterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onReset={handleResetFilters}
+      />
+
       {/* Create / Edit Transaction Modal */}
       <TransactionFormModal
         isOpen={formModalOpen}
@@ -380,4 +505,3 @@ export default function TransactionsPage() {
     </PageContainer>
   );
 }
-

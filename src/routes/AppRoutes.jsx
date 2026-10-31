@@ -1,6 +1,7 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import AppLayout from '../components/layout/AppLayout.jsx';
+import LandingPage from '../pages/LandingPage.jsx';
 import LoginPage from '../pages/LoginPage.jsx';
 import RegisterPage from '../pages/RegisterPage.jsx';
 import DashboardPage from '../pages/DashboardPage.jsx';
@@ -10,27 +11,27 @@ import ProfilePage from '../pages/ProfilePage.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 
 /**
- * Central Route Registry (ROADMAP.md Section 5 & Phase 8 Task 8.1)
- * - /login        -> Public (Guest-only) -> LoginPage.jsx
- * - /register     -> Public (Guest-only) -> RegisterPage.jsx
+ * Central Route Registry
+ * - /             -> Public Landing Page -> LandingPage.jsx
+ * - /login        -> Dedicated Login     -> LoginPage.jsx
+ * - /register     -> Dedicated Register  -> RegisterPage.jsx
  * - /dashboard    -> Protected           -> DashboardPage.jsx
  * - /transactions -> Protected           -> TransactionsPage.jsx
  * - /budgets      -> Protected           -> BudgetsPage.jsx
  * - /profile      -> Protected           -> ProfilePage.jsx
- * - /             -> Redirect            -> /dashboard
- * - *             -> Public              -> NotFoundPage.jsx
+ * - *             -> Public 404          -> NotFoundPage.jsx
  */
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Public Guest Routes */}
+      {/* Public Landing & Dedicated Authentication Routes */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Protected Application Routes */}
+      {/* Protected Application Workspace Routes */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/budgets" element={<BudgetsPage />} />
